@@ -9,10 +9,10 @@
 <h3>The Ultimate <strong>1TamilMV</strong> Telegram Bot — Auto-Scrape, Auto-Post, Zero Effort.</h3>
 
 <p>
-  <a href="https://github.com/aj-2-c-2-a/1tamilvt-tg/stargazers"><img src="https://img.shields.io/github/stars/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=github&color=F97316" alt="Stars"></a>
-  <a href="https://github.com/aj-2-c-2-a/1tamilvt-tg/network/members"><img src="https://img.shields.io/github/forks/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=github&color=3B82F6" alt="Forks"></a>
-  <a href="https://github.com/aj-2-c-2-a/1tamilvt-tg/issues"><img src="https://img.shields.io/github/issues/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=github&color=EF4444" alt="Issues"></a>
-  <a href="https://github.com/aj-2-c-2-a/1tamilvt-tg/blob/main/LICENSE"><img src="https://img.shields.io/github/license/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=opensourceinitiative&color=10B981" alt="License"></a>
+  <a href="https://github.com/aj-2-c-2-a/1tamilvtg_bot/stargazers"><img src="https://img.shields.io/github/stars/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=github&color=F97316" alt="Stars"></a>
+  <a href="https://github.com/aj-2-c-2-a/1tamilvtg_bot/network/members"><img src="https://img.shields.io/github/forks/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=github&color=3B82F6" alt="Forks"></a>
+  <a href="https://github.com/aj-2-c-2-a/1tamilvtg_bot/issues"><img src="https://img.shields.io/github/issues/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=github&color=EF4444" alt="Issues"></a>
+  <a href="https://github.com/aj-2-c-2-a/1tamilvtg_bot/blob/main/LICENSE"><img src="https://img.shields.io/github/license/aj-2-c-2-a/1tamilvt-tg?style=for-the-badge&logo=opensourceinitiative&color=10B981" alt="License"></a>
 </p>
 
 <p>
@@ -74,7 +74,7 @@ That's it. The installer will:
 ### Step 1 — Clone
 
 ```bash
-git clone https://github.com/aj-2-c-2-a/1tamilvt-tg.git
+git clone https://github.com/aj-2-c-2-a/1tamilvtg_bot.git
 cd 1tamilvt-tg
 ```
 
@@ -125,7 +125,7 @@ docker-compose up -d
 Or one-liner:
 
 ```bash
-curl -fsSL https://get.docker.com | sh && git clone https://github.com/aj-2-c-2-a/1tamilvt-tg.git && cd 1tamilvt-tg && docker-compose up -d
+curl -fsSL https://get.docker.com | sh && git clone https://github.com/aj-2-c-2-a/1tamilvtg_bot.git && cd 1tamilvt-tg && docker-compose up -d
 ```
 
 ---
@@ -133,10 +133,10 @@ curl -fsSL https://get.docker.com | sh && git clone https://github.com/aj-2-c-2-
 ## ☁️ Cloud Deploy
 
 ### Render.com
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/aj-2-c-2-a/1tamilvt-tg)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/aj-2-c-2-a/1tamilvtg_bot)
 
 ### Heroku
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/aj-2-c-2-a/1tamilvt-tg)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/aj-2-c-2-a/1tamilvtg_bot)
 
 ### Koyeb
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&repository=github.com/aj-2-c-2-a/1tamilvt-tg&branch=main&name=1tamilvt-tg)
