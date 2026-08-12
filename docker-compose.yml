@@ -1,24 +1,13 @@
 version: "3.8"
 
 services:
-  backend:
-    image: backend
-    container_name: backend
+  bot:
+    build: .
+    container_name: 1tamilvt-tg
+    restart: unless-stopped
+    env_file:
+      - .env
     volumes:
-      - logs:/usr/src/app/logs
+      - ./logs:/app/logs
     ports:
-      - 5200:5200
-  corenlp:
-    image: corenlp
-    container_name: corenlp
-    ports:
-      - 9000:9000
-  frontend:
-    image: frontend
-    container_name: frontend
-    ports:
-      - 80:80
-
-volumes:
-  logs:
-    external: false
+      - "${PORT:-8080}:${PORT:-8080}"
