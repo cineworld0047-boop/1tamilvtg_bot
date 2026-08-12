@@ -1,4 +1,4 @@
-"""Async scraper for 1TamilMV with proxy rotation."""
+"""Async scraper for 1TamilMV with advanced proxy rotation and Cloudflare bypass detection."""
 import asyncio
 import logging
 from typing import List, Dict, Optional
@@ -14,6 +14,13 @@ logger = logging.getLogger(__name__)
 class TamilMVScraper:
     """Scraper for 1TamilMV movie listings."""
 
+    # Master list of active & historical 1TamilMV domain extensions
+    KNOWN_EXTENSIONS = [
+        "dad", "in", "app", "immo", "blue", "tw", "yt", "pk", 
+        "life", "rest", "pro", "baby", "hair", "click", "lat", 
+        "world", "wiki", "ws", "fi", "be", "pl", "ong", "cz"
+    ]
+
     HEADERS = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -28,30 +35,49 @@ class TamilMVScraper:
     }
 
     def __init__(self):
-        self.domains = Config.PROXY_DOMAINS.copy()
+        # Merge config domains with our auto-generated master list
+        config_domains = getattr(Config, "PROXY_DOMAINS", [])
+        auto_domains = [f"https://www.1tamilmv.{ext}" for ext in self.KNOWN_EXTENSIONS]
+        
+        # Remove duplicates while keeping order
+        self.domains = list(dict.fromkeys(config_domains + auto_domains))
         self.working_domain: Optional[str] = None
         self._session: Optional[aiohttp.ClientSession] = None
 
     async def _get_session(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
-            timeout = aiohttp.ClientTimeout(total=30)
+            timeout = aiohttp.ClientTimeout(total=20)
             self._session = aiohttp.ClientSession(timeout=timeout)
         return self._session
 
     async def _find_working_domain(self) -> Optional[str]:
-        """Rotate through domains and find one that responds."""
+        """Rotate through domains and find one that responds without Cloudflare blocks."""
         session = await self._get_session()
         for domain in self.domains:
             try:
+                logger.info(f"Testing domain: {domain}")
                 async with session.get(domain, headers=self.HEADERS, ssl=False) as resp:
                     if resp.status == 200:
-                        logger.info(f"Working domain found: {domain}")
+                        html = await resp.text()
+                        
+                        # 1. Detect Cloudflare "Verify you are human" blocks
+                        if "Just a moment..." in html or "cf-browser-verification" in html or "Enable JavaScript and cookies" in html:
+                            logger.warning(f"Domain {domain} is blocked by Cloudflare Captcha. Skipping...")
+                            continue
+                            
+                        # 2. Detect if it's an actual 1TamilMV page
+                        if "ipsDataItem" not in html and "1TamilMV" not in html:
+                            logger.warning(f"Domain {domain} doesn't look like valid 1TamilMV content. Skipping...")
+                            continue
+
+                        logger.info(f"✅ Working domain found and cleared: {domain}")
                         self.working_domain = domain
                         return domain
             except Exception as e:
                 logger.debug(f"Domain failed {domain}: {e}")
                 continue
-        logger.error("No working 1TamilMV domain found.")
+                
+        logger.error("❌ No working 1TamilMV domains found without Cloudflare protection.")
         return None
 
     async def get_latest(self, limit: int = 10) -> List[Dict]:
@@ -66,10 +92,16 @@ class TamilMVScraper:
         try:
             async with session.get(url, headers=self.HEADERS, ssl=False) as resp:
                 html = await resp.text()
+                
+                # Double-check Cloudflare didn't block us mid-session
+                if "Just a moment..." in html:
+                    logger.warning("Cloudflare block caught during scrape! Resetting domain.")
+                    self.working_domain = None
+                    return []
+                    
                 return self._parse_movies(html, domain, limit)
         except Exception as e:
             logger.error(f"Failed to fetch movies: {e}")
-            # Reset working domain to retry rotation next time
             self.working_domain = None
             return []
 
@@ -78,10 +110,8 @@ class TamilMVScraper:
         soup = BeautifulSoup(html, "html.parser")
         movies = []
 
-        # 1TamilMV typically uses forum post listings
         entries = soup.select(".ipsDataItem_main, .structItem-title, article, .xtt-post-title")
         if not entries:
-            # Fallback: look for any anchor with movie-like text
             entries = soup.find_all("a", href=True)
 
         seen = set()
@@ -97,9 +127,8 @@ class TamilMVScraper:
                 continue
             seen.add(href)
 
-            # Extract quality hints from title
-            quality = "Unknown"
-            for q in ["4K", "2160p", "1080p", "720p", "480p", "HDRip", "WEB-DL", "BluRay"]:
+            quality = "HD"
+            for q in ["4K", "2160p", "1080p", "720p", "480p", "HDRip", "WEB-DL", "BluRay", "HQ"]:
                 if q.lower() in title.lower():
                     quality = q
                     break
