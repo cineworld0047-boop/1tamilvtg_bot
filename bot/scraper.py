@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 class TamilMVScraper:
     """Scraper for 1TamilMV movie listings."""
 
-    # Master list of active & historical 1TamilMV domain extensions
+    # Prioritized master list including the newest extensions
     KNOWN_EXTENSIONS = [
-        "dad", "in", "app", "immo", "blue", "tw", "yt", "pk", 
+        "ing", "dad", "in", "app", "immo", "blue", "tw", "yt", "pk", 
         "life", "rest", "pro", "baby", "hair", "click", "lat", 
-        "world", "wiki", "ws", "fi", "be", "pl", "ong", "cz"
+        "world", "wiki", "ws", "fi", "be", "pl", "ong", "cz", "cards"
     ]
 
     HEADERS = {
@@ -35,11 +35,9 @@ class TamilMVScraper:
     }
 
     def __init__(self):
-        # Merge config domains with our auto-generated master list
         config_domains = getattr(Config, "PROXY_DOMAINS", [])
-        auto_domains = [f"https://www.1tamilmv.{ext}" for ext in self.KNOWN_EXTENSIONS]
+        auto_domains = [f"https://www.1tamilmv.{ext}/" for ext in self.KNOWN_EXTENSIONS]
         
-        # Remove duplicates while keeping order
         self.domains = list(dict.fromkeys(config_domains + auto_domains))
         self.working_domain: Optional[str] = None
         self._session: Optional[aiohttp.ClientSession] = None
@@ -60,12 +58,10 @@ class TamilMVScraper:
                     if resp.status == 200:
                         html = await resp.text()
                         
-                        # 1. Detect Cloudflare "Verify you are human" blocks
                         if "Just a moment..." in html or "cf-browser-verification" in html or "Enable JavaScript and cookies" in html:
                             logger.warning(f"Domain {domain} is blocked by Cloudflare Captcha. Skipping...")
                             continue
                             
-                        # 2. Detect if it's an actual 1TamilMV page
                         if "ipsDataItem" not in html and "1TamilMV" not in html:
                             logger.warning(f"Domain {domain} doesn't look like valid 1TamilMV content. Skipping...")
                             continue
@@ -86,14 +82,12 @@ class TamilMVScraper:
         if not domain:
             return []
 
-        url = urljoin(domain, "/")
         session = await self._get_session()
 
         try:
-            async with session.get(url, headers=self.HEADERS, ssl=False) as resp:
+            async with session.get(domain, headers=self.HEADERS, ssl=False) as resp:
                 html = await resp.text()
                 
-                # Double-check Cloudflare didn't block us mid-session
                 if "Just a moment..." in html:
                     logger.warning("Cloudflare block caught during scrape! Resetting domain.")
                     self.working_domain = None
